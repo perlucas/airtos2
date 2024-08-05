@@ -18,12 +18,16 @@ class AdxEnv(TradingEnv):
         # Ensure there are at least window_size ticks before the first observed one
         prices = prices[self.frame_bound[0] -
                         self.window_size: self.frame_bound[1]]
-
-        # Generate indicators
-        self.df.ta.log_return(cumulative=True, append=True)
-        self.df.ta.percent_return(cumulative=True, append=True)
+        
+        # Z-score normalization function
+        def z_score(values):
+            mean = np.mean(values)
+            std_dev = np.std(values)
+            return (values - mean) / std_dev
 
         adx = self.df.ta.adx().to_numpy()
         adx = np.where(np.isfinite(adx), adx, 0)
+        adx = adx[self.frame_bound[0] - self.window_size: self.frame_bound[1]]
+        adx_z = z_score(adx)
 
-        return prices.astype(np.float32), adx.astype(np.float32)
+        return prices.astype(np.float32), adx_z.astype(np.float32)

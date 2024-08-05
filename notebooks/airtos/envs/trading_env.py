@@ -76,9 +76,7 @@ class TradingEnv(py_environment.PyEnvironment):
         # Validate and process prices and signals from source data
         assert df.ndim == 2
 
-        # Reverse dataframe to sort prices by date, ascending order
-        # self.df = df.iloc[::-1]
-        # self.df = self.df.reset_index(drop=True)
+        # Reverse dataframe to sort prices by date => comes ordered from load_dataset function
         self.df = df
         
         self.window_size = window_size
@@ -90,8 +88,8 @@ class TradingEnv(py_environment.PyEnvironment):
             # Reshape into N-dim array for better support
             shape=(num_dimensions,),
             dtype=np.float32,
-            minimum=[-1e5] * num_dimensions,
-            maximum=[1e5] * num_dimensions,
+            minimum=[-5e0] * num_dimensions,
+            maximum=[5e0] * num_dimensions,
             name='observation')
 
         self._action_spec = array_spec.BoundedArraySpec(

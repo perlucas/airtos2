@@ -19,11 +19,15 @@ class MacdEnv(TradingEnv):
         prices = prices[self.frame_bound[0] -
                         self.window_size: self.frame_bound[1]]
 
-        # Generate indicators
-        self.df.ta.log_return(cumulative=True, append=True)
-        self.df.ta.percent_return(cumulative=True, append=True)
+        # Z-score normalization function
+        def z_score(values):
+            mean = np.mean(values)
+            std_dev = np.std(values)
+            return (values - mean) / std_dev
 
         macd = self.df.ta.macd().to_numpy()
         macd = np.where(np.isfinite(macd), macd, 0)
+        macd = macd[self.frame_bound[0] - self.window_size: self.frame_bound[1]]
+        macd_z = z_score(macd)
 
-        return prices.astype(np.float32), macd.astype(np.float32)
+        return prices.astype(np.float32), macd_z.astype(np.float32)
